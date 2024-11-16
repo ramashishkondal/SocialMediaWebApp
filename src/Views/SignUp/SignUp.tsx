@@ -1,5 +1,12 @@
-import { ChangeEventHandler, MouseEventHandler, useState } from "react";
+import {
+  ChangeEventHandler,
+  FocusEventHandler,
+  MouseEventHandler,
+  useState,
+} from "react";
 import { supabase } from "../../Shared/SupabaseClient";
+import { isNotValidEmail, isNotValidName } from "../../Utils/checkValidity";
+import CustomTextField from "../../Components/Molecules/CustomTextField";
 
 function SignUp() {
   const [newUserData, setNewUserData] = useState<{
@@ -14,6 +21,12 @@ function SignUp() {
     newPassword: "",
     confirmPassowrd: "",
     dob: "",
+  });
+  const [fieldsVisited, setFieldsVisited] = useState({
+    nameVisited: false,
+    emailVisited: false,
+    newPasswordVisited: false,
+    confirmPasswordVisited: false,
   });
 
   const onChangeName: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -32,6 +45,19 @@ function SignUp() {
   };
   const onChangeDOB: ChangeEventHandler<HTMLInputElement> = (event) => {
     setNewUserData({ ...newUserData, dob: event.target.value });
+  };
+
+  const onBlurName: FocusEventHandler = () => {
+    setFieldsVisited({ ...fieldsVisited, nameVisited: true });
+  };
+  const onBlurEmail: FocusEventHandler = () => {
+    setFieldsVisited({ ...fieldsVisited, emailVisited: true });
+  };
+  const onBlurNewPassowrd: FocusEventHandler = () => {
+    setFieldsVisited({ ...fieldsVisited, newPasswordVisited: true });
+  };
+  const onBlurConfirmPassowrd: FocusEventHandler = () => {
+    setFieldsVisited({ ...fieldsVisited, confirmPasswordVisited: true });
   };
 
   const onCreateAccountPressed: MouseEventHandler<HTMLButtonElement> = () => {
@@ -59,7 +85,7 @@ function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-800">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
       <div className="flex flex-col items-start p-8 bg-gray-900 text-gray-300 space-y-8 rounded-lg shadow-xl w-full max-w-md">
         {/* Heading */}
         <h2 className="text-3xl font-semibold text-blue-400">
@@ -67,75 +93,67 @@ function SignUp() {
         </h2>
 
         {/* Form Fields */}
-        <form className="space-y-6 w-full">
+        <form className="space-y-3 w-full">
           {/* Name */}
-          <div className="relative">
-            <input
-              type="text"
-              id="name"
-              placeholder=" "
-              onChange={onChangeName}
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <label
-              htmlFor="name"
-              className="absolute left-4 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-sm"
-            >
-              Name
-            </label>
-          </div>
+          <CustomTextField
+            id="name"
+            onChange={onChangeName}
+            onBlur={onBlurName}
+            labelText="Name"
+            errorText="Please enter a valid name."
+            showError={
+              isNotValidName(newUserData.name) && fieldsVisited.nameVisited
+            }
+            value={newUserData.name}
+          />
 
           {/* Email */}
-          <div className="relative">
-            <input
-              type="email"
-              id="email"
-              placeholder=" "
-              onChange={onChangeEmail}
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <label
-              htmlFor="email"
-              className="absolute left-4 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-sm"
-            >
-              Email
-            </label>
-          </div>
+          <CustomTextField
+            id="email"
+            onChange={onChangeEmail}
+            onBlur={onBlurEmail}
+            labelText="Email"
+            errorText="Please enter a valid email."
+            showError={
+              isNotValidEmail(newUserData.email) &&
+              fieldsVisited.emailVisited &&
+              !!newUserData.email
+            }
+            value={newUserData.email}
+          />
+
           {/* Password */}
-          <div className="relative">
-            <input
-              type="password"
-              id="new-password"
-              placeholder=" "
-              onChange={onChangeNewPassword}
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <label
-              htmlFor="new-password"
-              className="absolute left-4 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-sm"
-            >
-              New Password
-            </label>
-          </div>
+          <CustomTextField
+            id="newPassword"
+            onChange={onChangeNewPassword}
+            onBlur={onBlurNewPassowrd}
+            labelText="New Password"
+            errorText="Please enter a valid password."
+            showError={
+              isNotValidEmail(newUserData.name) &&
+              fieldsVisited.newPasswordVisited &&
+              !!newUserData.newPassword
+            }
+            value={newUserData.newPassword}
+          />
+
           {/*Confirm Password */}
-          <div className="relative">
-            <input
-              type="password"
-              id="password"
-              placeholder=" "
-              onChange={onChangeConfirmPassword}
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <label
-              htmlFor="password"
-              className="absolute left-4 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-sm"
-            >
-              Confirm Password
-            </label>
-          </div>
+          <CustomTextField
+            id="confirmPassword"
+            onChange={onChangeConfirmPassword}
+            onBlur={onBlurConfirmPassowrd}
+            labelText="Confirm Password"
+            errorText="Passwords dont match."
+            showError={
+              newUserData.confirmPassowrd !== newUserData.newPassword &&
+              fieldsVisited.confirmPasswordVisited &&
+              !!newUserData.newPassword
+            }
+            value={newUserData.confirmPassowrd}
+          />
 
           {/* Date of Birth */}
-          <div className="relative space-y-2">
+          <div className="relative space-y-3">
             <label htmlFor="dob" className="text-white text-md">
               Date of Birth
             </label>

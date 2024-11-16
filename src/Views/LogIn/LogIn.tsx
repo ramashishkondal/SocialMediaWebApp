@@ -1,15 +1,30 @@
-import { ChangeEventHandler, MouseEventHandler, useState } from "react";
+import {
+  ChangeEventHandler,
+  FocusEventHandler,
+  MouseEventHandler,
+  useState,
+} from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { supabase } from "../../Shared/SupabaseClient";
+import CustomTextField from "../../Components/Molecules/CustomTextField";
+import { isNotValidEmail } from "../../Utils/checkValidity";
 
 function LogIn() {
   const [email, setEmail] = useState("");
+  const [isEmailVisited, setIsEmailVisited] = useState(false);
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate(); // Initialize the navigation function
 
   const onChangeEmail: ChangeEventHandler<HTMLInputElement> = (event) => {
     setEmail(event.target.value);
   };
   const onChangePassword: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPassword(event.target.value);
+  };
+
+  const onBlurEmail: FocusEventHandler<HTMLInputElement> = () => {
+    setIsEmailVisited(true);
   };
 
   const onLogInPressed: MouseEventHandler<HTMLButtonElement> = () => {
@@ -20,9 +35,21 @@ function LogIn() {
     }
   };
 
+  const onBackToHome = () => {
+    navigate("/"); // Navigate to the home page
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-800">
+    <div className="flex items-center bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 justify-center min-h-screen">
       <div className="flex flex-col items-start p-8 bg-gray-900 text-gray-300 space-y-8 rounded-lg shadow-xl w-full max-w-md">
+        {/* Back Button */}
+        <button
+          onClick={onBackToHome}
+          className="text-blue-400 hover:text-blue-500 transition self-start"
+        >
+          ←
+        </button>
+
         {/* Heading */}
         <h2 className="text-3xl font-semibold text-blue-400">
           Log in to your account
@@ -31,38 +58,27 @@ function LogIn() {
         {/* Form Fields */}
         <form className="space-y-6 w-full">
           {/* Email */}
-          <div className="relative">
-            <input
-              type="email"
-              id="email"
-              placeholder=" "
-              onChange={onChangeEmail}
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <label
-              htmlFor="email"
-              className="absolute left-4 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-sm"
-            >
-              Email
-            </label>
-          </div>
+          <CustomTextField
+            id="email"
+            value={email}
+            onChange={onChangeEmail}
+            errorText="Please enter a valid email address."
+            labelText="Email"
+            onBlur={onBlurEmail}
+            showError={isNotValidEmail(email) && isEmailVisited && !!email}
+          />
 
           {/* Password */}
-          <div className="relative">
-            <input
-              type="password"
-              id="password"
-              placeholder=" "
-              onChange={onChangePassword}
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <label
-              htmlFor="password"
-              className="absolute left-4 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-blue-400 peer-focus:text-sm"
-            >
-              Password
-            </label>
-          </div>
+          <CustomTextField
+            id="password"
+            type="password"
+            value={password}
+            onChange={onChangePassword}
+            errorText="Please enter your password."
+            labelText="Password"
+            onBlur={onBlurEmail}
+            showError={false}
+          />
 
           {/* Submit Button */}
           <button
