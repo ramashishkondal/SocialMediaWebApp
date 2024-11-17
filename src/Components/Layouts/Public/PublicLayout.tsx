@@ -1,12 +1,11 @@
-import { AppLayoutProps } from '../AppLayout.d';
-import Navbar from './Navbar';
+import { AppLayoutProps } from "../AppLayout.d";
+import Footer from "./Footer";
 
 function PublicLayout({ children }: AppLayoutProps): JSX.Element {
   return (
     <>
-      <Navbar />
       {children}
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }
