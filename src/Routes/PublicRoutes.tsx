@@ -8,9 +8,9 @@ import { CustomRouter } from "./RootRoutes";
 // eslint-disable-next-line import/prefer-default-export
 export const PUBLIC_ROUTES: Array<CustomRouter> = [
   {
-    path: ROUTES_CONFIG.HOMEPAGE.path,
+    path: ROUTES_CONFIG.ONBOARDING.path,
     element: <Dashboard />,
-    title: ROUTES_CONFIG.HOMEPAGE.title,
+    title: ROUTES_CONFIG.ONBOARDING.title,
   },
   {
     path: `${ROUTES_CONFIG.LOGIN.path}`,
