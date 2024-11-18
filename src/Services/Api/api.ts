@@ -4,17 +4,18 @@ import {
   fetchBaseQuery,
   BaseQueryFn,
   BaseQueryApi,
-} from '@reduxjs/toolkit/query/react';
-import type { RootState } from '../../Store';
-import { API_BASE_URL } from './Constants';
-import { ResponseOptions } from './api.d';
+} from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../../Store";
+import { API_ANON_KEY, API_BASE_URL } from "./Constants";
+import { ResponseOptions } from "./api.d";
 
 const baseQuery: BaseQueryFn = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   prepareHeaders: async (headers: Headers, { getState }) => {
     const { token } = (getState() as RootState).common;
     if (token) {
-      headers.append('authorization', `${token}`);
+      headers.set("apikey", API_ANON_KEY);
+      headers.set("Authorization", `Bearer ${API_ANON_KEY}`);
     }
     return headers;
   },

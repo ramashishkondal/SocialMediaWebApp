@@ -7,6 +7,7 @@ import type { RootState } from "../Store";
 import { useEffect } from "react";
 import { supabase } from "../Shared/SupabaseClient";
 import { updateAuthTokenRedux } from "../Store/Common";
+import CustomLoader from "../Components/Molecules/CustomLoader";
 
 function RootRouter() {
   const guest = useRoutes(guestRoutes);
@@ -15,26 +16,22 @@ function RootRouter() {
   const dispatch = useDispatch();
   const isAuthenticated = !!token;
 
-  console.log("token is", token);
-
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("seesison", session);
-
-      dispatch(updateAuthTokenRedux({ token: session }));
+      dispatch(updateAuthTokenRedux(session));
     });
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <>
+    <CustomLoader>
       <DocumentTitle isAuthenticated={isAuthenticated} />
       <AppLayout isAuthenticated={isAuthenticated}>
         {token ? authenticated : guest}
       </AppLayout>
-    </>
+    </CustomLoader>
   );
 }
 

@@ -8,11 +8,15 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { supabase } from "../../Shared/SupabaseClient";
 import CustomTextField from "../../Components/Molecules/CustomTextField";
 import { isNotValidEmail } from "../../Utils/checkValidity";
+import { useDispatch } from "react-redux";
+import { FaLeftLong } from "react-icons/fa6";
+import { setLoading } from "../../Store/Loader";
 
 function LogIn() {
   const [email, setEmail] = useState("");
   const [isEmailVisited, setIsEmailVisited] = useState(false);
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
 
   const navigate = useNavigate(); // Initialize the navigation function
 
@@ -29,9 +33,15 @@ function LogIn() {
 
   const onLogInPressed: MouseEventHandler<HTMLButtonElement> = () => {
     if (email && password) {
-      supabase.auth.signInWithPassword({ email, password }).catch((error) => {
-        console.log("sign in error", error);
-      });
+      dispatch(setLoading(true));
+      supabase.auth
+        .signInWithPassword({ email, password })
+        .catch((error) => {
+          console.log("sign in error", error);
+        })
+        .finally(() => {
+          dispatch(setLoading(false));
+        });
     }
   };
 
@@ -47,7 +57,7 @@ function LogIn() {
           onClick={onBackToHome}
           className="text-blue-400 hover:text-blue-500 transition self-start"
         >
-          ←
+          <FaLeftLong />
         </button>
 
         {/* Heading */}
@@ -56,7 +66,7 @@ function LogIn() {
         </h2>
 
         {/* Form Fields */}
-        <form className="space-y-6 w-full">
+        <form className="space-y-6 w-full" autoComplete="off">
           {/* Email */}
           <CustomTextField
             id="email"
