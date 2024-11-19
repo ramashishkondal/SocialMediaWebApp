@@ -2,23 +2,26 @@ const STRING: string = "Test";
 export { STRING };
 
 const ROUTES = {
-  HOMEPAGE: "/",
+  ONBOARDING: "/",
   LOGIN: "/login",
   SIGNUP: "/signup",
+  HOMEPAGE: "/home",
+  EXPLORE: "/explore",
   NEWSFEED: "/newsfeed",
-  USERPROFILE: "/userprofile",
-  ABOUT: "/about-us",
+  BOOKMARKS: "/bookmarks",
+  COMMUNITY: "/communities",
+  PROFILE: "/profile",
 };
 
 const WILDCARD_ROUTES = {
-  PUBLIC: ROUTES.HOMEPAGE,
-  PRIVATE: ROUTES.ABOUT,
+  PUBLIC: ROUTES.ONBOARDING,
+  PRIVATE: ROUTES.HOMEPAGE,
 };
 
 const ROUTES_CONFIG = {
-  HOMEPAGE: {
-    path: ROUTES.HOMEPAGE,
-    title: "Home",
+  ONBOARDING: {
+    path: ROUTES.ONBOARDING,
+    title: "Onboarding",
   },
   SIGNUP: {
     path: ROUTES.SIGNUP,
@@ -28,18 +31,29 @@ const ROUTES_CONFIG = {
     path: ROUTES.LOGIN,
     title: "Login",
   },
-
+  HOMEPAGE: {
+    path: ROUTES.HOMEPAGE,
+    title: "Home",
+  },
+  EXPLORE: {
+    path: ROUTES.EXPLORE,
+    title: "Explore",
+  },
   NEWSFEED: {
     path: ROUTES.NEWSFEED,
     title: "News Feed",
   },
-  USERPROFILE: {
-    path: ROUTES.USERPROFILE,
-    title: "User Profile",
+  BOOKMARKS: {
+    path: ROUTES.BOOKMARKS,
+    title: "Bookmarks",
   },
-  ABOUT: {
-    path: ROUTES.ABOUT,
-    title: "About us",
+  COMMUNITY: {
+    path: ROUTES.COMMUNITY,
+    title: "Community",
+  },
+  PROFILE: {
+    path: ROUTES.PROFILE,
+    title: "Profile",
   },
 };
 
