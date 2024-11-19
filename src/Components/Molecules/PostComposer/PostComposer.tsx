@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { FaSmile, FaImage } from "react-icons/fa";
+import { FaImage } from "react-icons/fa";
 import { supabase } from "../../../Shared/SupabaseClient";
 import { useStorePostDataMutation } from "../../../Services/Api/module/posts";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../Store";
+import { useStoreMultipleTagsMutation } from "../../../Services/Api/module/postsTags";
 
 const PostComposer = () => {
   const [postText, setPostText] = useState<string>("");
@@ -12,6 +13,7 @@ const PostComposer = () => {
   const [uploading, setUploading] = useState<boolean>(false);
 
   const [storePost] = useStorePostDataMutation();
+  const [storeTags] = useStoreMultipleTagsMutation();
   const { id, name, profilePictureUrl } = useSelector(
     (state: RootState) => state.user
   );
@@ -24,6 +26,7 @@ const PostComposer = () => {
     if (image == null && postText === null) {
       return;
     }
+    let url = null;
     setUploading(true);
     if (image) {
       // Generate a unique file name (you can customize this)
@@ -41,18 +44,19 @@ const PostComposer = () => {
       }
 
       // Get the public URL of the uploaded image
-      const url = supabase.storage
+      url = supabase.storage
         .from("SocialMediaImages") // Replace with your bucket name
         .getPublicUrl(filePath).data.publicUrl;
-
-      await storePost({ byUserId: id, imageUrl: url, text: postText });
-      setPostText("");
-      setImage(null);
-      setImageUrl(null);
-      setUploading(false);
-      return;
     }
-    await storePost({ byUserId: id, imageUrl: null, text: postText });
+    const data = await storePost({
+      byUserId: id,
+      imageUrl: url,
+      text: postText,
+    });
+    console.log("posts returning data is - ", data);
+
+    // const tags = extractUsernamesFromTags(postText).map((val)=> {postId:});
+
     setPostText("");
     setImage(null);
     setImageUrl(null);
@@ -99,6 +103,7 @@ const PostComposer = () => {
           placeholder="What is happening?!"
           className="w-full bg-black text-white border-none outline-none resize-none text-lg mb-4"
           rows={3}
+          maxLength={100}
           value={postText}
           onChange={handlePostChange}
         />
@@ -128,7 +133,6 @@ const PostComposer = () => {
               onChange={handleImageUpload}
             />
           </label>
-          <FaSmile size={20} className="cursor-pointer" />
         </div>
         <button
           className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-4 rounded ${

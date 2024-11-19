@@ -1,8 +1,9 @@
-import { FaCheckCircle, FaBookmark, FaHeart } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 import { PostCardProps } from "./types";
 
 const PostCard = ({
   postImageUrl,
+  name,
   text,
   userName,
   userPhotoUrl,
@@ -20,9 +21,9 @@ const PostCard = ({
         {/* User Info */}
         <div>
           <div className="flex items-center space-x-1">
-            <span className="font-semibold">{userName}</span>
+            <span className="font-semibold">{name}</span>
             <FaCheckCircle className="text-blue-500" size={14} />
-            <span className="text-gray-400">@PicturesFoIder</span>
+            <span className="text-gray-400">@{userName}</span>
             <span className="text-gray-400">· 13h</span>
           </div>
           <p className="text-gray-300">{text}</p>
@@ -31,7 +32,7 @@ const PostCard = ({
 
       {/* Media Section */}
       {postImageUrl && (
-        <div className="mt-4">
+        <div className="my-4">
           <img
             src={postImageUrl}
             placeholder="https://via.placeholder.com/500x300"
@@ -40,17 +41,6 @@ const PostCard = ({
           />
         </div>
       )}
-
-      {/* Engagement Section */}
-      <div className="flex justify-around items-center mt-4 text-gray-500">
-        <div className="flex items-center space-x-1 hover:text-red-400 cursor-pointer">
-          <FaHeart size={16} />
-          <span>96K</span>
-        </div>
-        <div className="flex items-center space-x-1 hover:text-purple-400 cursor-pointer">
-          <FaBookmark size={16} />
-        </div>
-      </div>
     </div>
   );
 };

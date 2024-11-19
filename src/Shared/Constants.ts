@@ -6,11 +6,7 @@ const ROUTES = {
   LOGIN: "/login",
   SIGNUP: "/signup",
   HOMEPAGE: "/home",
-  EXPLORE: "/explore",
   NEWSFEED: "/newsfeed",
-  BOOKMARKS: "/bookmarks",
-  COMMUNITY: "/communities",
-  PROFILE: "/profile",
 };
 
 const WILDCARD_ROUTES = {
@@ -35,25 +31,10 @@ const ROUTES_CONFIG = {
     path: ROUTES.HOMEPAGE,
     title: "Home",
   },
-  EXPLORE: {
-    path: ROUTES.EXPLORE,
-    title: "Explore",
-  },
+
   NEWSFEED: {
     path: ROUTES.NEWSFEED,
     title: "News Feed",
-  },
-  BOOKMARKS: {
-    path: ROUTES.BOOKMARKS,
-    title: "Bookmarks",
-  },
-  COMMUNITY: {
-    path: ROUTES.COMMUNITY,
-    title: "Community",
-  },
-  PROFILE: {
-    path: ROUTES.PROFILE,
-    title: "Profile",
   },
 };
 

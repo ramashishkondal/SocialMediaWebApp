@@ -6,7 +6,11 @@ type PostsCollection = {
 }[];
 type PostsCollectionJoinUser = {
   node: Post & {
-    byUser: { name: string; profilePictureUrl: string | null };
+    byUser: {
+      name: string;
+      profilePictureUrl: string | null;
+      userName: string;
+    };
   };
 }[];
 
@@ -19,12 +23,17 @@ type PostResponse = {
     };
   };
 };
+
 type PostResponseJoinUser = {
   data: {
     postsCollection: {
       edges: {
         node: Post & {
-          byUser: { name: string; profilePictureUrl: string | null };
+          byUser: {
+            name: string;
+            profilePictureUrl: string | null;
+            userName: string;
+          };
         };
       }[];
     };
@@ -33,18 +42,18 @@ type PostResponseJoinUser = {
 
 export const userApi = api.injectEndpoints({
   endpoints: (build) => ({
-    fetchPostsData: build.query<PostsCollectionJoinUser, void>({
+    fetchPostsData: build.query<PostsCollectionJoinUser, number>({
       transformResponse: (baseQueryReturn: PostResponseJoinUser) => {
         // Return only the "edges" array, which contains the users
         return baseQueryReturn.data.postsCollection.edges;
       },
-      query: () => ({
+      query: (upto) => ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
-              query postData {
-                postsCollection {
+              query postData($upto:Int!) {
+                postsCollection(first:$upto) {
                   edges {
                     node {
                         id    
@@ -52,6 +61,7 @@ export const userApi = api.injectEndpoints({
                         byUser{
                           name
                           profilePictureUrl
+                          userName
                         }
                         text
                         imageUrl
@@ -60,21 +70,24 @@ export const userApi = api.injectEndpoints({
                 }
               }
           `,
+          variables: {
+            upto,
+          },
         }),
       }),
     }),
-    fetchPostsDataByTime: build.query<PostsCollectionJoinUser, void>({
+    fetchPostsDataByTime: build.query<PostsCollectionJoinUser, number>({
       transformResponse: (baseQueryReturn: PostResponseJoinUser) => {
         // Return only the "edges" array, which contains the users
         return baseQueryReturn.data.postsCollection.edges;
       },
-      query: () => ({
+      query: (upto) => ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
-               query postData {
-                postsCollection(orderBy:{createdAt:DescNullsLast}) {
+               query postDataByTime($upto:Int!) {
+                postsCollection(orderBy:{createdAt:DescNullsLast},first:$upto) {
                   edges {
                     node {
                         id    
@@ -82,6 +95,7 @@ export const userApi = api.injectEndpoints({
                         byUser{
                           name
                           profilePictureUrl
+                          userName
                         }
                         text
                         imageUrl
@@ -90,6 +104,9 @@ export const userApi = api.injectEndpoints({
                 }
               }
           `,
+          variables: {
+            upto,
+          },
         }),
       }),
     }),
@@ -120,6 +137,47 @@ export const userApi = api.injectEndpoints({
         }),
       }),
     }),
+    fetchPostsDataByFollowedUsers: build.query<
+      PostsCollectionJoinUser,
+      string[]
+    >({
+      transformResponse: (baseQueryReturn: PostResponseJoinUser) => {
+        // Return only the "edges" array, which contains the users
+        return baseQueryReturn.data.postsCollection.edges;
+      },
+      query: (followedIds) => ({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
+        query GetPostsByFollowedUsers($followedIds: [String!]!) {
+          postsCollection(
+            filter: { byUserId: { in: $followedIds } }
+            orderBy: { createdAt: DescNullsLast }
+          ) {
+            edges {
+              node {
+                id
+                createdAt
+                text
+                imageUrl
+                byUser{
+                  name
+                  profilePictureUrl
+                  userName
+                }
+              }
+            }
+          }
+        }
+      `,
+          variables: {
+            followedIds,
+          },
+        }),
+      }),
+    }),
+
     storePostData: build.mutation<
       PostsCollection,
       { imageUrl: string | null; text: string; byUserId: string }
@@ -132,6 +190,9 @@ export const userApi = api.injectEndpoints({
             mutation insertIntoPostsCollection( $byUserId: String!, $text: String!, $imageUrl: String!) {
               insertIntoPostsCollection(objects: [{ byUserId: $byUserId, text: $text, imageUrl: $imageUrl }]) {
                 affectedCount
+                records{
+                  id
+                }
               }
             }
           `,
@@ -152,5 +213,6 @@ export const {
   useFetchPostsDataByIdQuery,
   useFetchPostsDataQuery,
   useFetchPostsDataByTimeQuery,
+  useFetchPostsDataByFollowedUsersQuery,
   useStorePostDataMutation,
 } = userApi;
