@@ -99,7 +99,7 @@ function LogIn() {
             {/* Password */}
             <CustomTextField
               id="password"
-              type="password"
+              isSensitive={true}
               value={password}
               onChange={onChangePassword}
               errorText="Please enter your password."
