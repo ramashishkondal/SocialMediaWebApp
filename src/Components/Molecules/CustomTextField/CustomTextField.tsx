@@ -36,7 +36,7 @@ function CustomTextField({
       <label
         htmlFor={id ? id : labelText}
         className={`absolute left-4 top-3 text-gray-500 text-sm transition-all duration-300 ease-in-out peer-placeholder-shown:top-6 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-0 bg-gray-800 px-2 rounded-md peer-focus:text-blue-400 peer-focus:text-sm ${
-          value ? "-top-[-2px] text-blue-400 text-sm " : ""
+          value ? "top-[0.10rem] text-blue-400 text-sm " : ""
         }`}
       >
         {labelText}
