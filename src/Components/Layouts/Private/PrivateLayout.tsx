@@ -16,9 +16,7 @@ function PrivateLayout({ children }: AppLayoutProps): JSX.Element {
 
   useEffect(() => {
     if (user.id === "" && token) {
-      if (isLoading) {
-        dispatch(setLoading(true));
-      }
+      dispatch(setLoading(true));
       fetchUserData(token.user.id).then(({ data }) => {
         if (data) {
           dispatch(setUser(data[0].node));

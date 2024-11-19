@@ -5,6 +5,7 @@ import { useStorePostDataMutation } from "../../../Services/Api/module/posts";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../Store";
 import { useStoreMultipleTagsMutation } from "../../../Services/Api/module/postsTags";
+import { extractUsernamesFromTags } from "../../../Utils/commonFuncs";
 
 const PostComposer = () => {
   const [postText, setPostText] = useState<string>("");
@@ -48,14 +49,27 @@ const PostComposer = () => {
         .from("SocialMediaImages") // Replace with your bucket name
         .getPublicUrl(filePath).data.publicUrl;
     }
-    const data = await storePost({
+    const response = await storePost({
       byUserId: id,
       imageUrl: url,
       text: postText,
     });
-    console.log("posts returning data is - ", data);
-
-    // const tags = extractUsernamesFromTags(postText).map((val)=> {postId:});
+    if ("error" in response) {
+      console.error("Error storing post:", response.error);
+    } else {
+      const rawTagsDataFromPost = extractUsernamesFromTags(postText);
+      const filteredTagsFromPost: string[] = rawTagsDataFromPost.filter(
+        (item, index) => rawTagsDataFromPost.indexOf(item) === index
+      );
+      if (filteredTagsFromPost.length > 0) {
+        const tags: { postId: string; userName: string }[] =
+          filteredTagsFromPost.map((val) => ({
+            postId: response.data[0].id,
+            userName: val,
+          }));
+        await storeTags(tags);
+      }
+    }
 
     setPostText("");
     setImage(null);

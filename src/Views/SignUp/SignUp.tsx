@@ -9,8 +9,9 @@ import {
 import { AuthResponse } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { FaLeftLong } from "react-icons/fa6";
-import { toast } from "react-toastify"; // Import toastify
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ROUTES } from "../../Shared/Constants";
 
 function SignUp() {
   const [newUserData, setNewUserData] = useState({
@@ -32,11 +33,11 @@ function SignUp() {
     emailVisited: false,
     newPasswordVisited: false,
     confirmPasswordVisited: false,
+    dobVisited: false,
   });
 
-  const [isCreatingAccount, setIsCreatingAccount] = useState(false); // Loading state
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [checkUserName] = useLazyFetchUserDataByUserNameQuery();
-
   const [storeUser] = useStoreUserDataMutation();
 
   const handleProfilePictureChange: ChangeEventHandler<HTMLInputElement> = (
@@ -44,6 +45,10 @@ function SignUp() {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.size > 35000000) {
+        toast.error("File size cannot be larger than 35 MB.");
+        return;
+      }
       setProfilePicture(file);
       setProfilePicturePreview(URL.createObjectURL(file));
     }
@@ -60,6 +65,7 @@ function SignUp() {
       newUserData.email &&
       newUserData.newPassword &&
       newUserData.newPassword === newUserData.confirmPassowrd &&
+      newUserData.dob && // Ensure DOB is filled
       !isNotValidName(newUserData.name) &&
       !isNotValidEmail(newUserData.email)
     );
@@ -74,10 +80,11 @@ function SignUp() {
 
       if (userWithUserName.data && userWithUserName.data.length !== 0) {
         toast.error(
-          "Username has already been taken. Please try some other username."
+          "Username has already been taken. Please try another username."
         );
         return;
       }
+
       const {
         data: { user },
         error,
@@ -93,16 +100,13 @@ function SignUp() {
           },
         },
       });
-
       if (!user) {
         toast.error(
-          "Unable to create user. Please try again." + error?.message
+          "Unable to create user. Please try again. " + error?.message
         );
-        setIsCreatingAccount(false);
         return;
       }
 
-      let profilePictureUrl = null;
       if (profilePicture) {
         const filePath = `profiles/${user.id}/${profilePicture.name}`;
         const { error: uploadError } = await supabase.storage
@@ -112,20 +116,32 @@ function SignUp() {
         if (uploadError) {
           toast.error("Error uploading profile picture.");
         } else {
-          profilePictureUrl = supabase.storage
+          const profilePictureUrl = supabase.storage
             .from("SocialMediaImages")
             .getPublicUrl(filePath).data.publicUrl;
+          await storeUser({
+            id: user.id,
+            dob: newUserData.dob,
+            email: newUserData.email,
+            name: newUserData.name,
+            userName: newUserData.userName,
+            profilePictureUrl,
+          });
         }
+      } else {
+        await storeUser({
+          id: user.id,
+          dob: newUserData.dob,
+          email: newUserData.email,
+          name: newUserData.name,
+          userName: newUserData.userName,
+          profilePictureUrl: null,
+        });
       }
 
-      await storeUser({
-        id: user.id,
-        dob: newUserData.dob,
-        email: newUserData.email,
-        name: newUserData.name,
-        userName: newUserData.userName,
-        profilePictureUrl,
-      });
+      toast.success("Account created successfully!");
+      toast.info("LogIn now!");
+      navigate(ROUTES.LOGIN);
     } catch (e) {
       console.error(e);
       toast.error("Error during account creation. Please try again.");
@@ -186,6 +202,7 @@ function SignUp() {
 
           <CustomTextField
             id="username"
+            maxLength={15}
             onChange={(e) =>
               setNewUserData({ ...newUserData, userName: e.target.value })
             }
@@ -260,7 +277,7 @@ function SignUp() {
 
           <div className="relative space-y-3">
             <label htmlFor="dob" className="text-white text-md">
-              Date of Birth
+              Date of Birth <span className="text-red-500">*</span>
             </label>
             <p className="text-xs text-gray-400">
               This will not be shown publicly. Confirm your own age, even if
@@ -271,26 +288,32 @@ function SignUp() {
               id="dob"
               min="1997-01-01"
               max="2024-12-31"
+              value={newUserData.dob}
               onChange={(e) =>
                 setNewUserData({ ...newUserData, dob: e.target.value })
               }
-              className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              onBlur={() =>
+                setFieldsVisited({ ...fieldsVisited, dobVisited: true })
+              }
+              className={`peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border ${
+                !newUserData.dob && fieldsVisited.dobVisited
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-600 focus:ring-blue-500"
+              } focus:outline-none focus:ring-2`}
             />
+            {!newUserData.dob && fieldsVisited.dobVisited && (
+              <p className="text-red-500 text-xs">Date of Birth is required.</p>
+            )}
           </div>
-
-          <button
-            type="button"
-            onClick={onCreateAccountPressed}
-            disabled={!isFormValid() || isCreatingAccount}
-            className={`w-full py-3 ${
-              !isFormValid() || isCreatingAccount
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-            } text-white font-semibold rounded-md transition`}
-          >
-            {isCreatingAccount ? "Creating..." : "Create Account"}
-          </button>
         </form>
+
+        <button
+          disabled={!isFormValid() || isCreatingAccount}
+          onClick={onCreateAccountPressed}
+          className="w-full px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 disabled:bg-gray-500 transition"
+        >
+          {isCreatingAccount ? "Creating Account..." : "Sign Up"}
+        </button>
       </div>
     </div>
   );

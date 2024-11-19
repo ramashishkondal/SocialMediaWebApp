@@ -1,19 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PostCard from "../../Components/Molecules/PostCard";
 import PostComposer from "../../Components/Molecules/PostComposer";
 import { useFetchPostsDataByTimeQuery } from "../../Services/Api/module/posts";
 import { supabase } from "../../Shared/SupabaseClient";
 import WhoToFollowBar from "../../Components/Molecules/WhoToFollowBar/WhoToFollowBar";
-import { getTimePassed } from "../../Utils/commonFuncs";
 
 function Home() {
-  const [numberOfPosts, _setNumberOfPosts] = useState(5);
-
   const {
     data: postsData,
     isSuccess,
     refetch,
-  } = useFetchPostsDataByTimeQuery(numberOfPosts);
+  } = useFetchPostsDataByTimeQuery();
 
   console.log("pp", postsData);
 
@@ -50,7 +47,9 @@ function Home() {
         {isSuccess &&
           postsData?.map((val) => (
             <PostCard
+              createdAt={val.node.createdAt}
               name={val.node.byUser.name}
+              postId={val.node.id}
               key={val.node.id}
               postImageUrl={val.node.imageUrl}
               text={val.node.text}
@@ -61,7 +60,7 @@ function Home() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="flex-1 hidden sm:flex sm:max-w-60 md:max-w-72 lg:max-w-[30%] sticky overflow-y-auto ">
+      <div className="flex-1 hidden sm:flex sm:max-w-60 md:max-w-7 lg:max-w-[30%] sticky overflow-y-auto ">
         <WhoToFollowBar />
       </div>
     </div>

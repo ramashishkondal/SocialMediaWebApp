@@ -3,17 +3,43 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Store";
 import { useFetchFollowedUsersQuery } from "../../Services/Api/module/following";
 import ShowFollowedUsersPosts from "../../Components/Molecules/ShowFollowedUsersPosts";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { supabase } from "../../Shared/SupabaseClient";
 
 function NewsFeed() {
   const { id } = useSelector((state: RootState) => state.user);
-  const { data } = useFetchFollowedUsersQuery(id);
+  const { data, refetch } = useFetchFollowedUsersQuery(id);
   const followedUsers = useMemo(() => {
     if (data) {
       return data.map((val) => val.node.followedId);
     }
     return [];
   }, [data]);
+
+  const subscribeToFollowing = () => {
+    const channel = supabase
+      .channel("public:Following") // Replace with your schema if it's not "public"
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Following" }, // Listen for all events
+        (payload) => {
+          console.log("Change received! following table", payload);
+          refetch();
+        }
+      )
+      .subscribe();
+    return channel;
+  };
+
+  useEffect(() => {
+    const channel = subscribeToFollowing();
+
+    // Cleanup function: Unsubscribe on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+      console.log("Unsubscribed from Posts channel");
+    };
+  }, []);
 
   return (
     <div className="flex flex-row justify-between bg-black text-white min-h-screen">

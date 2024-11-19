@@ -76,18 +76,18 @@ export const userApi = api.injectEndpoints({
         }),
       }),
     }),
-    fetchPostsDataByTime: build.query<PostsCollectionJoinUser, number>({
+    fetchPostsDataByTime: build.query<PostsCollectionJoinUser, void>({
       transformResponse: (baseQueryReturn: PostResponseJoinUser) => {
         // Return only the "edges" array, which contains the users
         return baseQueryReturn.data.postsCollection.edges;
       },
-      query: (upto) => ({
+      query: () => ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
-               query postDataByTime($upto:Int!) {
-                postsCollection(orderBy:{createdAt:DescNullsLast},first:$upto) {
+               query postDataByTime{
+                postsCollection(orderBy:{createdAt:DescNullsLast}) {
                   edges {
                     node {
                         id    
@@ -104,9 +104,6 @@ export const userApi = api.injectEndpoints({
                 }
               }
           `,
-          variables: {
-            upto,
-          },
         }),
       }),
     }),
@@ -179,9 +176,19 @@ export const userApi = api.injectEndpoints({
     }),
 
     storePostData: build.mutation<
-      PostsCollection,
-      { imageUrl: string | null; text: string; byUserId: string }
+      { id: string }[], // Simplified return type for the mutation
+      { imageUrl: string | null; text: string; byUserId: string } // Variables for the mutation
     >({
+      transformResponse: (baseQueryReturn: {
+        data: {
+          insertIntoPostsCollection: {
+            records: { id: string }[];
+          };
+        };
+      }) => {
+        // Extract and return only the records array
+        return baseQueryReturn.data.insertIntoPostsCollection.records;
+      },
       query: (post) => ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
