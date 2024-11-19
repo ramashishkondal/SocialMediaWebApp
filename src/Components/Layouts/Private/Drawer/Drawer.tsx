@@ -5,22 +5,38 @@ import {
   FaUser,
   FaBookmark,
   FaUsers,
-  FaEllipsisH,
   FaPlus,
   FaNewspaper,
   FaSignOutAlt,
 } from "react-icons/fa";
 import { ROUTES } from "../../../../Shared/Constants";
+import { supabase } from "../../../../Shared/SupabaseClient";
+import { MouseEventHandler } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../Store";
+import { resetUser } from "../../../../Store/User";
+import { setLoading } from "../../../../Store/Loader";
 
 export function Drawer() {
   const location = useLocation(); // Get the current location
+  const user = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
 
   // Helper function to determine if a route is active
   const isActive = (path: string) => location.pathname === path;
 
+  // logOut
+  const logOut: MouseEventHandler<HTMLButtonElement> = () => {
+    dispatch(setLoading(true));
+    supabase.auth.signOut().finally(() => {
+      dispatch(resetUser());
+      dispatch(setLoading(false));
+    });
+  };
+
   return (
     <div
-      className={`h-screen flex flex-col bg-black text-white shadow-lg w-72 border-r border-gray-700 z-50`}
+      className={`h-screen flex flex-col bg-black text-white shadow-lg w-96 border-r border-gray-700 z-10`}
     >
       {/* Menu Items */}
       <nav className="flex flex-col mt-12 space-y-6 px-6">
@@ -93,6 +109,7 @@ export function Drawer() {
         </Link>
         <button
           type="button"
+          onClick={logOut}
           className={`flex items-center space-x-4 transition ${
             isActive("#") ? "text-blue-400 font-bold" : "hover:text-blue-400"
           }`}
@@ -113,17 +130,15 @@ export function Drawer() {
         {/* Profile Section */}
         <div className="flex items-center mt-10 px-6 py-4 border-t border-gray-700">
           <img
-            src="https://via.placeholder.com/40" // Placeholder avatar
+            src={user.profilePictureUrl!}
+            placeholder="https://via.placeholder.com/40" // Placeholder avatar
             alt="User Avatar"
             className="w-10 h-10 rounded-full"
           />
           <div className="ml-4">
-            <p className="text-sm font-semibold">Aman Yadav</p>
+            <p className="text-sm font-semibold">{user.name}</p>
             <p className="text-xs text-gray-400">@pancake_ken</p>
           </div>
-          <button className="ml-auto text-gray-400 hover:text-gray-100 transition">
-            <FaEllipsisH />
-          </button>
         </div>
       </div>
     </div>
