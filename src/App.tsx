@@ -17,7 +17,7 @@ function App() {
           <BrowserRouter basename={baseName}>
             <RootRouter />
           </BrowserRouter>
-          <ToastContainer />
+          <ToastContainer theme="dark" />
         </HelmetProvider>
       </PersistGate>
     </Provider>

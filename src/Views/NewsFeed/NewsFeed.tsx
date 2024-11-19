@@ -44,6 +44,10 @@ function NewsFeed() {
   return (
     <div className="flex flex-row justify-between bg-black text-white min-h-screen">
       {/* Main Content */}
+      {/* Right Sidebar (Only visible on larger screens, and below on smaller screens) */}
+      <div className="md:hidden block ">
+        <WhoToFollowBar />
+      </div>
       <ShowFollowedUsersPosts followedUsers={followedUsers} />
 
       {/* Right Sidebar */}
