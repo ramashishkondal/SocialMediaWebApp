@@ -24,17 +24,17 @@ type PostResponseJoinUser = {
 
 export const userApi = api.injectEndpoints({
   endpoints: (build) => ({
-    fetchTagsByPostId: build.query<postsTagsCollectionJoinUser, void>({
+    fetchTagsByPostId: build.query<postsTagsCollectionJoinUser, string>({
       transformResponse: (baseQueryReturn: PostResponseJoinUser) => {
         return baseQueryReturn.data.postsTagsCollection.edges;
       },
-      query: () => ({
+      query: (postId) => ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
               query postsTagsDataByPostId{
-                postsTagsCollection{
+                postsTagsCollection(filter:{postId:{eq:"${postId}"}}){
                   edges{
                     node{
                       postId

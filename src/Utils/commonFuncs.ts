@@ -10,27 +10,34 @@ export const extractUsernamesFromTags = (text: string) => {
   return matches;
 };
 
-export const getTimePassed = (timeInMillis: number): string => {
-  const currentTime = new Date().getTime();
-  const timePassedInSecs = (currentTime - timeInMillis) / 1000;
-  const timePassedInMns = Math.ceil(timePassedInSecs / 60);
-  const timePassedInHrs = Math.floor(timePassedInMns / 60);
-  if (timePassedInSecs <= 60) {
-    return `${
-      Math.floor(timePassedInSecs) > 0 ? Math.floor(timePassedInSecs) : 0
-    } ${Math.floor(timePassedInSecs) > 1 ? "seconds" : "second"} ago`;
+export const getTimePassed = (date: Date): string => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  // If the time difference is less than a minute
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds}s`;
   }
-  if (timePassedInMns <= 60) {
-    return `${timePassedInMns} ${
-      Math.floor(timePassedInMns) > 1 ? "minutes" : "minute"
-    } ago`;
+
+  // If the time difference is less than an hour
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes}m`;
   }
-  if (timePassedInHrs <= 23) {
-    return `${timePassedInHrs} ${
-      Math.floor(timePassedInHrs) > 1 ? "hours" : "hour"
-    } ago`;
+
+  // If the time difference is less than a day
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours}h`;
   }
-  return `${Math.floor(timePassedInHrs / 24)} ${
-    Math.floor(timePassedInHrs / 24) > 1 ? "days" : "day"
-  } ago`;
+
+  // If the time difference is less than a year
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 365) {
+    return `${diffInDays}d`;
+  }
+
+  // For larger time differences (years)
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears}y`;
 };

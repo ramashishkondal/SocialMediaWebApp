@@ -21,7 +21,10 @@ function WhoToFollowBar() {
     <div className="w-full border border-gray-800 p-4">
       <h2 className="text-lg font-bold mb-4">Who to follow</h2>
       {data?.map(
-        ({ node: { profilePictureUrl, name, userName, id } }, index) => (
+        (
+          { node: { profilePictureUrl, name, userName, id: followedId } },
+          index
+        ) => (
           <div
             key={index}
             className="flex items-center justify-between mb-4 bg-gray-700 p-3 rounded-lg"
@@ -41,7 +44,7 @@ function WhoToFollowBar() {
                 <p className="text-sm text-gray-400">@{userName}</p>
               </div>
             </div>
-            <UserFollows followedId={id} />
+            <UserFollows followedId={followedId} />
           </div>
         )
       )}

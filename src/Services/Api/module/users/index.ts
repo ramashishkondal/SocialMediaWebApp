@@ -57,8 +57,8 @@ export const userApi = api.injectEndpoints({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
-              query userDataById{
-                usersCollection(filter:{id:{eq:"${userId}"}}){
+              query userDataById($userId: string!){
+                usersCollection(filter:{id:{eq:$userId}}){
                   edges{
                     node{
                       name
@@ -73,6 +73,9 @@ export const userApi = api.injectEndpoints({
                 }
               }
           `,
+          variables: {
+            userId,
+          },
         }),
       }),
     }),
