@@ -2,23 +2,22 @@ const STRING: string = "Test";
 export { STRING };
 
 const ROUTES = {
-  HOMEPAGE: "/",
+  ONBOARDING: "/",
   LOGIN: "/login",
   SIGNUP: "/signup",
+  HOMEPAGE: "/home",
   NEWSFEED: "/newsfeed",
-  USERPROFILE: "/userprofile",
-  ABOUT: "/about-us",
 };
 
 const WILDCARD_ROUTES = {
-  PUBLIC: ROUTES.HOMEPAGE,
-  PRIVATE: ROUTES.LOGIN,
+  PUBLIC: ROUTES.ONBOARDING,
+  PRIVATE: ROUTES.HOMEPAGE,
 };
 
 const ROUTES_CONFIG = {
-  HOMEPAGE: {
-    path: ROUTES.HOMEPAGE,
-    title: "Home",
+  ONBOARDING: {
+    path: ROUTES.ONBOARDING,
+    title: "Onboarding",
   },
   SIGNUP: {
     path: ROUTES.SIGNUP,
@@ -28,18 +27,14 @@ const ROUTES_CONFIG = {
     path: ROUTES.LOGIN,
     title: "Login",
   },
+  HOMEPAGE: {
+    path: ROUTES.HOMEPAGE,
+    title: "Home",
+  },
 
   NEWSFEED: {
     path: ROUTES.NEWSFEED,
     title: "News Feed",
-  },
-  USERPROFILE: {
-    path: ROUTES.USERPROFILE,
-    title: "User Profile",
-  },
-  ABOUT: {
-    path: ROUTES.ABOUT,
-    title: "About us",
   },
 };
 
