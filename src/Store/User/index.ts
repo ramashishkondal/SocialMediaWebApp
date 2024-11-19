@@ -7,6 +7,7 @@ const initialState: User = {
   dob: "",
   email: "",
   name: "",
+  userName: "",
   profilePictureUrl: null,
 };
 

@@ -43,7 +43,8 @@ function ShowFollowedUsersPosts({
             key={val.node.id}
             postImageUrl={val.node.imageUrl}
             text={val.node.text}
-            userName={val.node.byUser.name}
+            name={val.node.byUser.name}
+            userName={val.node.byUser.userName}
             userPhotoUrl={val.node.byUser.profilePictureUrl}
           />
         ))}

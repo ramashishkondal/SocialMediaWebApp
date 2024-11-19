@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useFetchUserDataByIdQuery } from "../../../Services/Api/module/users";
+import { useLazyFetchUserDataByIdQuery } from "../../../Services/Api/module/users";
 import { AppLayoutProps } from "../AppLayout.d";
 import Drawer from "./Drawer";
 import { RootState } from "../../../Store";
@@ -8,26 +8,27 @@ import { setLoading } from "../../../Store/Loader";
 import { setUser } from "../../../Store/User";
 
 function PrivateLayout({ children }: AppLayoutProps): JSX.Element {
-  const id = useSelector((state: RootState) => state.common.token?.user.id);
+  const token = useSelector((state: RootState) => state.common.token);
   const user = useSelector((state: RootState) => state.user);
-  const { data, isLoading, error } = useFetchUserDataByIdQuery(id ?? "");
+  const [fetchUserData, { isLoading, isError, error }] =
+    useLazyFetchUserDataByIdQuery();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user.id === "" && id) {
+    if (user.id === "" && token) {
       if (isLoading) {
         dispatch(setLoading(true));
       }
-      if (data?.length) {
-        console.log("daaaa", data);
-
-        dispatch(setUser(data[0].node));
-        dispatch(setLoading(false));
-      }
+      fetchUserData(token.user.id).then(({ data }) => {
+        if (data) {
+          dispatch(setUser(data[0].node));
+          dispatch(setLoading(false));
+        }
+      });
     }
-  }, [user, id, data, isLoading, dispatch]);
+  }, [user, token, isLoading, dispatch]);
 
-  if (error) {
+  if (isError) {
     console.error("Error fetching user data:", error);
     return <div>Error loading user data</div>; // Show an error message
   }

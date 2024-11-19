@@ -13,8 +13,8 @@ const baseQuery: BaseQueryFn = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   prepareHeaders: async (headers: Headers, { getState }) => {
     const { token } = (getState() as RootState).common;
+    headers.set("apikey", API_ANON_KEY);
     if (token) {
-      headers.set("apikey", API_ANON_KEY);
       headers.set("Authorization", `Bearer ${API_ANON_KEY}`);
     }
     return headers;

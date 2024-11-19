@@ -21,7 +21,7 @@ function NewsFeed() {
       <ShowFollowedUsersPosts followedUsers={followedUsers} />
 
       {/* Right Sidebar */}
-      <div className="flex flex-1 max-w-96 sticky overflow-y-auto h-screen">
+      <div className="flex-1 hidden sm:flex sm:max-w-60 md:max-w-72 lg:max-w-[30%] sticky overflow-y-auto">
         <WhoToFollowBar />
       </div>
     </div>

@@ -1,42 +1,41 @@
-import {
-  ChangeEventHandler,
-  FocusEventHandler,
-  MouseEventHandler,
-  useState,
-} from "react";
+import { ChangeEventHandler, MouseEventHandler, useState } from "react";
 import { supabase } from "../../Shared/SupabaseClient";
 import { isNotValidEmail, isNotValidName } from "../../Utils/checkValidity";
 import CustomTextField from "../../Components/Molecules/CustomTextField";
-import { useStoreUserDataMutation } from "../../Services/Api/module/users";
+import {
+  useLazyFetchUserDataByUserNameQuery,
+  useStoreUserDataMutation,
+} from "../../Services/Api/module/users";
 import { AuthResponse } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { FaLeftLong } from "react-icons/fa6";
+import { toast } from "react-toastify"; // Import toastify
+import "react-toastify/dist/ReactToastify.css";
 
 function SignUp() {
-  const [newUserData, setNewUserData] = useState<{
-    name: string;
-    email: string;
-    newPassword: string;
-    confirmPassowrd: string;
-    dob: string;
-  }>({
+  const [newUserData, setNewUserData] = useState({
     name: "",
+    userName: "",
     email: "",
     newPassword: "",
     confirmPassowrd: "",
     dob: "",
   });
-  const navigate = useNavigate(); // Initialize the navigation function
 
+  const navigate = useNavigate();
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] =
     useState<string>("");
   const [fieldsVisited, setFieldsVisited] = useState({
     nameVisited: false,
+    usernameVisited: false,
     emailVisited: false,
     newPasswordVisited: false,
     confirmPasswordVisited: false,
   });
+
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false); // Loading state
+  const [checkUserName] = useLazyFetchUserDataByUserNameQuery();
 
   const [storeUser] = useStoreUserDataMutation();
 
@@ -51,103 +50,93 @@ function SignUp() {
   };
 
   const onBackToHome = () => {
-    navigate("/"); // Navigate to the home page
+    navigate("/");
   };
 
-  const onChangeName: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setNewUserData({ ...newUserData, name: event.target.value });
-  };
-  const onChangeEmail: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setNewUserData({ ...newUserData, email: event.target.value });
-  };
-  const onChangeNewPassword: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setNewUserData({ ...newUserData, newPassword: event.target.value });
-  };
-  const onChangeConfirmPassword: ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    setNewUserData({ ...newUserData, confirmPassowrd: event.target.value });
-  };
-  const onChangeDOB: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setNewUserData({ ...newUserData, dob: event.target.value });
-  };
-
-  const onBlurName: FocusEventHandler = () => {
-    setFieldsVisited({ ...fieldsVisited, nameVisited: true });
-  };
-  const onBlurEmail: FocusEventHandler = () => {
-    setFieldsVisited({ ...fieldsVisited, emailVisited: true });
-  };
-  const onBlurNewPassowrd: FocusEventHandler = () => {
-    setFieldsVisited({ ...fieldsVisited, newPasswordVisited: true });
-  };
-  const onBlurConfirmPassowrd: FocusEventHandler = () => {
-    setFieldsVisited({ ...fieldsVisited, confirmPasswordVisited: true });
-  };
-
-  const onCreateAccountPressed: MouseEventHandler<HTMLButtonElement> = () => {
-    if (
+  const isFormValid = () => {
+    return (
       newUserData.name &&
+      newUserData.userName &&
       newUserData.email &&
       newUserData.newPassword &&
-      newUserData.dob
-    ) {
-      const createUserAccount = async () => {
-        try {
-          const {
-            data: { user },
-          }: AuthResponse = await supabase.auth.signUp({
-            email: newUserData.email,
-            password: newUserData.newPassword,
-            options: {
-              emailRedirectTo: undefined,
-              data: {
-                name: newUserData.name,
-                dob: newUserData.dob,
-              },
-            },
-          });
+      newUserData.newPassword === newUserData.confirmPassowrd &&
+      !isNotValidName(newUserData.name) &&
+      !isNotValidEmail(newUserData.email)
+    );
+  };
 
-          if (!user) {
-            console.log("user null received");
-            return;
-          }
+  const onCreateAccountPressed: MouseEventHandler<
+    HTMLButtonElement
+  > = async () => {
+    setIsCreatingAccount(true);
+    try {
+      const userWithUserName = await checkUserName(newUserData.userName);
 
-          let profilePictureUrl = null;
-          if (profilePicture) {
-            const filePath = `profiles/${user.id}/${profilePicture.name}`;
-            const { error: uploadError } = await supabase.storage
-              .from("SocialMediaImages")
-              .upload(filePath, profilePicture);
-
-            if (!uploadError) {
-              profilePictureUrl = supabase.storage
-                .from("SocialMediaImages")
-                .getPublicUrl(filePath).data.publicUrl;
-            }
-          }
-
-          const resp = await storeUser({
-            id: user.id,
-            dob: newUserData.dob,
-            email: newUserData.email,
+      if (userWithUserName.data && userWithUserName.data.length !== 0) {
+        toast.error(
+          "Username has already been taken. Please try some other username."
+        );
+        return;
+      }
+      const {
+        data: { user },
+        error,
+      }: AuthResponse = await supabase.auth.signUp({
+        email: newUserData.email,
+        password: newUserData.newPassword,
+        options: {
+          emailRedirectTo: undefined,
+          data: {
             name: newUserData.name,
-            profilePictureUrl,
-          });
+            username: newUserData.userName,
+            dob: newUserData.dob,
+          },
+        },
+      });
 
-          console.log("storing resp is ", resp);
-        } catch (e) {
-          console.log("Error during account creation:", e);
+      if (!user) {
+        toast.error(
+          "Unable to create user. Please try again." + error?.message
+        );
+        setIsCreatingAccount(false);
+        return;
+      }
+
+      let profilePictureUrl = null;
+      if (profilePicture) {
+        const filePath = `profiles/${user.id}/${profilePicture.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("SocialMediaImages")
+          .upload(filePath, profilePicture);
+
+        if (uploadError) {
+          toast.error("Error uploading profile picture.");
+        } else {
+          profilePictureUrl = supabase.storage
+            .from("SocialMediaImages")
+            .getPublicUrl(filePath).data.publicUrl;
         }
-      };
-      createUserAccount();
+      }
+
+      await storeUser({
+        id: user.id,
+        dob: newUserData.dob,
+        email: newUserData.email,
+        name: newUserData.name,
+        userName: newUserData.userName,
+        profilePictureUrl,
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error("Error during account creation. Please try again.");
+    } finally {
+      setIsCreatingAccount(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
       <div className="flex flex-col items-start p-8 bg-gray-900 text-gray-300 space-y-8 rounded-lg shadow-xl w-full max-w-md">
-        {/* Back Button */}
         <button
           onClick={onBackToHome}
           className="text-blue-400 hover:text-blue-500 transition self-start"
@@ -155,12 +144,10 @@ function SignUp() {
           <FaLeftLong />
         </button>
 
-        {/* Heading */}
         <h2 className="text-3xl font-semibold text-blue-400">
           Create your account
         </h2>
 
-        {/* Profile Picture */}
         <div>
           <label className="block text-sm font-medium text-white">
             Profile Picture
@@ -180,13 +167,15 @@ function SignUp() {
           )}
         </div>
 
-        {/* Form Fields */}
         <form className="space-y-3 w-full" autoComplete="off">
-          {/* Name */}
           <CustomTextField
             id="name"
-            onChange={onChangeName}
-            onBlur={onBlurName}
+            onChange={(e) =>
+              setNewUserData({ ...newUserData, name: e.target.value })
+            }
+            onBlur={() =>
+              setFieldsVisited({ ...fieldsVisited, nameVisited: true })
+            }
             labelText="Name"
             errorText="Please enter a valid name."
             showError={
@@ -195,11 +184,30 @@ function SignUp() {
             value={newUserData.name}
           />
 
-          {/* Email */}
+          <CustomTextField
+            id="username"
+            onChange={(e) =>
+              setNewUserData({ ...newUserData, userName: e.target.value })
+            }
+            onBlur={() =>
+              setFieldsVisited({ ...fieldsVisited, usernameVisited: true })
+            }
+            labelText="Username"
+            errorText="Username must be at least 3 characters long."
+            showError={
+              newUserData.userName.length < 3 && fieldsVisited.usernameVisited
+            }
+            value={newUserData.userName}
+          />
+
           <CustomTextField
             id="email"
-            onChange={onChangeEmail}
-            onBlur={onBlurEmail}
+            onChange={(e) =>
+              setNewUserData({ ...newUserData, email: e.target.value })
+            }
+            onBlur={() =>
+              setFieldsVisited({ ...fieldsVisited, emailVisited: true })
+            }
             labelText="Email"
             errorText="Please enter a valid email."
             showError={
@@ -210,24 +218,38 @@ function SignUp() {
             value={newUserData.email}
           />
 
-          {/* New Password */}
           <CustomTextField
+            isSensitive={true}
             id="newPassword"
-            onChange={onChangeNewPassword}
-            onBlur={onBlurNewPassowrd}
+            onChange={(e) =>
+              setNewUserData({ ...newUserData, newPassword: e.target.value })
+            }
+            onBlur={() =>
+              setFieldsVisited({ ...fieldsVisited, newPasswordVisited: true })
+            }
             labelText="New Password"
             errorText="Please enter a valid password."
             showError={false}
             value={newUserData.newPassword}
           />
 
-          {/*Confirm Password */}
           <CustomTextField
+            isSensitive={true}
             id="confirmPassword"
-            onChange={onChangeConfirmPassword}
-            onBlur={onBlurConfirmPassowrd}
+            onChange={(e) =>
+              setNewUserData({
+                ...newUserData,
+                confirmPassowrd: e.target.value,
+              })
+            }
+            onBlur={() =>
+              setFieldsVisited({
+                ...fieldsVisited,
+                confirmPasswordVisited: true,
+              })
+            }
             labelText="Confirm Password"
-            errorText="Passwords dont match."
+            errorText="Passwords don't match."
             showError={
               newUserData.confirmPassowrd !== newUserData.newPassword &&
               fieldsVisited.confirmPasswordVisited &&
@@ -236,7 +258,6 @@ function SignUp() {
             value={newUserData.confirmPassowrd}
           />
 
-          {/* Date of Birth */}
           <div className="relative space-y-3">
             <label htmlFor="dob" className="text-white text-md">
               Date of Birth
@@ -250,18 +271,24 @@ function SignUp() {
               id="dob"
               min="1997-01-01"
               max="2024-12-31"
-              onChange={onChangeDOB}
+              onChange={(e) =>
+                setNewUserData({ ...newUserData, dob: e.target.value })
+              }
               className="peer w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="button"
             onClick={onCreateAccountPressed}
-            className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md transition"
+            disabled={!isFormValid() || isCreatingAccount}
+            className={`w-full py-3 ${
+              !isFormValid() || isCreatingAccount
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            } text-white font-semibold rounded-md transition`}
           >
-            Create Account
+            {isCreatingAccount ? "Creating..." : "Create Account"}
           </button>
         </form>
       </div>

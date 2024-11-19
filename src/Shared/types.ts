@@ -2,6 +2,7 @@ export type User = {
   id: string;
   createdAt: string;
   name: string;
+  userName: string;
   email: string;
   dob: string;
   profilePictureUrl: string | null;
@@ -20,4 +21,11 @@ export type Following = {
   createdAt: string;
   followerId: string;
   followedId: string;
+};
+
+export type PostsTags = {
+  id: string;
+  createdAt: string;
+  postId: string;
+  userName: string;
 };

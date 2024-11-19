@@ -3,6 +3,7 @@ import { PostCardProps } from "./types";
 
 const PostCard = ({
   postImageUrl,
+  name,
   text,
   userName,
   userPhotoUrl,
@@ -20,9 +21,9 @@ const PostCard = ({
         {/* User Info */}
         <div>
           <div className="flex items-center space-x-1">
-            <span className="font-semibold">{userName}</span>
+            <span className="font-semibold">{name}</span>
             <FaCheckCircle className="text-blue-500" size={14} />
-            <span className="text-gray-400">@PicturesFoIder</span>
+            <span className="text-gray-400">@{userName}</span>
             <span className="text-gray-400">· 13h</span>
           </div>
           <p className="text-gray-300">{text}</p>

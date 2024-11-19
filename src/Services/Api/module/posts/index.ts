@@ -6,7 +6,11 @@ type PostsCollection = {
 }[];
 type PostsCollectionJoinUser = {
   node: Post & {
-    byUser: { name: string; profilePictureUrl: string | null };
+    byUser: {
+      name: string;
+      profilePictureUrl: string | null;
+      userName: string;
+    };
   };
 }[];
 
@@ -25,7 +29,11 @@ type PostResponseJoinUser = {
     postsCollection: {
       edges: {
         node: Post & {
-          byUser: { name: string; profilePictureUrl: string | null };
+          byUser: {
+            name: string;
+            profilePictureUrl: string | null;
+            userName: string;
+          };
         };
       }[];
     };
@@ -53,6 +61,7 @@ export const userApi = api.injectEndpoints({
                         byUser{
                           name
                           profilePictureUrl
+                          userName
                         }
                         text
                         imageUrl
@@ -77,7 +86,7 @@ export const userApi = api.injectEndpoints({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
-               query postData($upto:Int!) {
+               query postDataByTime($upto:Int!) {
                 postsCollection(orderBy:{createdAt:DescNullsLast},first:$upto) {
                   edges {
                     node {
@@ -86,6 +95,7 @@ export const userApi = api.injectEndpoints({
                         byUser{
                           name
                           profilePictureUrl
+                          userName
                         }
                         text
                         imageUrl
@@ -154,6 +164,7 @@ export const userApi = api.injectEndpoints({
                 byUser{
                   name
                   profilePictureUrl
+                  userName
                 }
               }
             }
@@ -179,6 +190,9 @@ export const userApi = api.injectEndpoints({
             mutation insertIntoPostsCollection( $byUserId: String!, $text: String!, $imageUrl: String!) {
               insertIntoPostsCollection(objects: [{ byUserId: $byUserId, text: $text, imageUrl: $imageUrl }]) {
                 affectedCount
+                records{
+                  id
+                }
               }
             }
           `,

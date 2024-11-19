@@ -7,7 +7,6 @@ const ROUTES = {
   SIGNUP: "/signup",
   HOMEPAGE: "/home",
   NEWSFEED: "/newsfeed",
-  PROFILE: "/profile",
 };
 
 const WILDCARD_ROUTES = {
@@ -36,10 +35,6 @@ const ROUTES_CONFIG = {
   NEWSFEED: {
     path: ROUTES.NEWSFEED,
     title: "News Feed",
-  },
-  PROFILE: {
-    path: ROUTES.PROFILE,
-    title: "Profile",
   },
 };
 
