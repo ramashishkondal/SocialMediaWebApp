@@ -14,3 +14,10 @@ export type Post = {
   text: string;
   imageUrl: string | null;
 };
+
+export type Following = {
+  id: string;
+  createdAt: string;
+  followerId: string;
+  followedId: string;
+};

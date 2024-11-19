@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import PostCard from "../../Components/Molecules/PostCard";
 import PostComposer from "../../Components/Molecules/PostComposer";
 import { useFetchPostsDataByTimeQuery } from "../../Services/Api/module/posts";
@@ -6,11 +6,15 @@ import { supabase } from "../../Shared/SupabaseClient";
 import WhoToFollowBar from "../../Components/Molecules/WhoToFollowBar/WhoToFollowBar";
 
 function Home() {
+  const [numberOfPosts, setNumberOfPosts] = useState(5);
+
   const {
     data: postsData,
     isSuccess,
     refetch,
-  } = useFetchPostsDataByTimeQuery();
+  } = useFetchPostsDataByTimeQuery(numberOfPosts);
+
+  console.log("pp", postsData);
 
   const subscribeToPosts = () => {
     const channel = supabase
@@ -36,6 +40,19 @@ function Home() {
       console.log("Unsubscribed from Posts channel");
     };
   }, []);
+
+  const divRef = useRef(null);
+
+  const handleScroll = () => {
+    if (divRef.current === null) {
+      return;
+    }
+    const { scrollTop, scrollHeight, clientHeight } = divRef.current;
+    if (scrollTop + clientHeight >= scrollHeight) {
+      console.log("You have reached the bottom of the div");
+    }
+    console.log("lol");
+  };
 
   return (
     <div className="flex flex-row justify-between bg-black text-white min-h-screen">

@@ -1,10 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   FaHome,
-  FaSearch,
   FaUser,
-  FaBookmark,
-  FaUsers,
   FaPlus,
   FaNewspaper,
   FaSignOutAlt,
@@ -51,17 +48,7 @@ export function Drawer() {
           <FaHome size={20} />
           <span>Home</span>
         </Link>
-        <Link
-          to={ROUTES.EXPLORE}
-          className={`flex items-center space-x-4 transition ${
-            isActive(ROUTES.EXPLORE)
-              ? "text-blue-400 font-bold"
-              : "hover:text-blue-400"
-          }`}
-        >
-          <FaSearch size={20} />
-          <span>Explore</span>
-        </Link>
+
         <Link
           to={ROUTES.NEWSFEED}
           className={`flex items-center space-x-4 transition ${
@@ -72,29 +59,6 @@ export function Drawer() {
         >
           <FaNewspaper size={20} />
           <span>NewsFeed</span>
-        </Link>
-
-        <Link
-          to={ROUTES.BOOKMARKS}
-          className={`flex items-center space-x-4 transition ${
-            isActive(ROUTES.BOOKMARKS)
-              ? "text-blue-400 font-bold"
-              : "hover:text-blue-400"
-          }`}
-        >
-          <FaBookmark size={20} />
-          <span>Bookmarks</span>
-        </Link>
-        <Link
-          to={ROUTES.COMMUNITY}
-          className={`flex items-center space-x-4 transition ${
-            isActive(ROUTES.COMMUNITY)
-              ? "text-blue-400 font-bold"
-              : "hover:text-blue-400"
-          }`}
-        >
-          <FaUsers size={20} />
-          <span>Communities</span>
         </Link>
         <Link
           to={ROUTES.PROFILE}
