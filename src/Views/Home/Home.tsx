@@ -40,10 +40,15 @@ function Home() {
   }, []);
 
   return (
-    <div className="flex flex-row justify-between bg-black text-white min-h-screen">
+    <div className="flex flex-col sm:flex-row justify-between bg-black text-white min-h-screen">
       {/* Main Content */}
-      <div className=" flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col">
         <PostComposer />
+        {/* Right Sidebar (Only visible on larger screens, and below on smaller screens) */}
+        <div className="md:hidden block ">
+          <WhoToFollowBar />
+        </div>
+
         {isSuccess &&
           postsData?.map((val) => (
             <PostCard
@@ -59,8 +64,7 @@ function Home() {
           ))}
       </div>
 
-      {/* Right Sidebar */}
-      <div className="flex-1 hidden sm:flex sm:max-w-60 md:max-w-7 lg:max-w-[30%] sticky overflow-y-auto ">
+      <div className="flex-1 hidden md:flex lg:max-w-96 sticky overflow-y-auto">
         <WhoToFollowBar />
       </div>
     </div>

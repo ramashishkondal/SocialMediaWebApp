@@ -287,7 +287,7 @@ function SignUp() {
               type="date"
               id="dob"
               min="1997-01-01"
-              max="2024-12-31"
+              max="2022-12-31"
               value={newUserData.dob}
               onChange={(e) =>
                 setNewUserData({ ...newUserData, dob: e.target.value })

@@ -77,7 +77,7 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={goToLogIn}
-              className="border border-gray-500 hover:border-gray-400 text-gray-300 hover:text-white py-4 px-10 rounded-full text-xl font-semibold shadow-lg transition w-full md:w-auto"
+              className="border mb-4 border-gray-500 hover:border-gray-400 text-gray-300 hover:text-white py-4 px-10 rounded-full text-xl font-semibold shadow-lg transition w-full md:w-auto"
             >
               Sign in
             </button>
